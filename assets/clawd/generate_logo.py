@@ -79,8 +79,6 @@ def main():
         append_images=frames[1:],
         duration=FRAME_DURATION,
         loop=0,
-        disposal=2,
-        transparency=0,
     )
     print(f"Saved {output} ({WIDTH}x{HEIGHT}, {NUM_FRAMES} frames)")
 
