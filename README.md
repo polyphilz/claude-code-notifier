@@ -1,17 +1,17 @@
 # Claude Code Notifier
 
-Native macOS notifications for [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Know when Claude Code finishes or needs your input.
+Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>. Know when Claude Code finishes or needs your input.
 
 ![demo](assets/demo.gif)
 
 ## Features
 
 - **Two notification types** — "Done" when Claude finishes, "Needs Input" when Claude needs approval
-- **tmux context** — shows session name, window number, and window name so you know exactly where to look
-- **Project name** — displays the current project directory
-- **Smart suppression** — skips notifications when you're already viewing the Claude Code session
-- **Custom icon** — optionally use your own app icon instead of the default Script Editor icon
-- **Sound** — plays a distinct sound per notification type (Glass for done, Ping for needs input)
+- **tmux context** — Shows session name, window number, and window name
+- **Project name** — Displays the current project directory
+- **Suppression** — Skips notifications when you're already viewing the Claude Code session
+- **Custom icon** — Use your own app icon instead of the default Script Editor icon
+- **Sound** — Plays a sound per notification type
 
 ### Example notification
 
@@ -24,8 +24,8 @@ Claude has finished and is awaiting further instructions
 ## Requirements
 
 - macOS (uses native notification APIs)
-- [jq](https://jqlang.github.io/jq/) — `brew install jq`
-- [terminal-notifier](https://github.com/julienXX/terminal-notifier) (optional, for custom icon) — `brew install terminal-notifier`
+- <a href="https://jqlang.github.io/jq/" target="_blank">jq</a> — `brew install jq`
+- <a href="https://github.com/julienXX/terminal-notifier" target="_blank">terminal-notifier</a> (optional, for custom icon) — `brew install terminal-notifier`
 
 ## Install
 
@@ -37,7 +37,7 @@ cd claude-code-notifier
 
 The install script:
 1. Symlinks `notify.sh` into `~/.claude/hooks/`
-2. If `icon.png` exists in the repo, builds a `ClaudeNotifier.app` with your custom icon
+2. If `icon.png` exists in the repo, builds a `ClaudeNotifier.app` with your icon
 3. Prints the hooks config to add to your `settings.json`
 
 ### Custom icon
@@ -88,13 +88,13 @@ ln -sf /path/to/claude-code-notifier/notify.sh ~/.claude/hooks/notify.sh
 }
 ```
 
-**3. Restart your Claude Code session.**
+**3. Activate the hooks.**
 
-Hooks are snapshotted at session start — you must restart for changes to take effect.
+Open the `/hooks` menu in Claude Code to review and accept the new hooks, or restart your session.
 
 ## How it works
 
-Claude Code's [hooks system](https://docs.anthropic.com/en/docs/claude-code/hooks) runs shell commands on lifecycle events:
+Claude Code's <a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">hooks system</a> runs shell commands on lifecycle events:
 
 | Hook | Event | Notification |
 |------|-------|-------------|
