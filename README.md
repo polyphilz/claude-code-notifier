@@ -1,8 +1,19 @@
+<div align="center">
+
 # Claude Code Notifier
 
-Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>. Know when Claude Code finishes or needs your input.
+Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>.
+Know when Claude finishes or needs your input.
+
+[![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)](https://www.apple.com/macos/)
+[![Shell Script](https://img.shields.io/badge/Shell_Script-4EAA25?style=flat&logo=gnu-bash&logoColor=white)](notify.sh)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+<br>
 
 ![demo](assets/demo.gif)
+
+</div>
 
 ## Features
 
@@ -13,23 +24,18 @@ Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claud
 - **Custom icon** — Use your own app icon instead of the default Script Editor icon
 - **Sound** — Plays a sound per notification type
 
-### Example notification
-
 ```
 Claude Code — Done
 myproject w3 > feature-branch · my-app
 Claude has finished and is awaiting further instructions
 ```
 
-## Requirements
-
-- macOS (uses native notification APIs)
-- <a href="https://jqlang.github.io/jq/" target="_blank">jq</a> — `brew install jq`
-- <a href="https://github.com/julienXX/terminal-notifier" target="_blank">terminal-notifier</a> (optional, for custom icon) — `brew install terminal-notifier`
-
-## Install
+## Quick Start
 
 ```bash
+brew install jq                    # required
+brew install terminal-notifier     # optional, for custom icon
+
 git clone https://github.com/YOUR_USERNAME/claude-code-notifier.git
 cd claude-code-notifier
 ./install.sh
@@ -46,7 +52,27 @@ Place a **1024x1024 PNG** named `icon.png` in the repo root before running `inst
 
 Without `icon.png`, notifications fall back to `osascript` (Script Editor icon) or `terminal-notifier` (Terminal icon).
 
-## Manual setup
+## How it works
+
+Claude Code's <a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">hooks system</a> runs shell commands on lifecycle events:
+
+| Hook | Event | Notification |
+|------|-------|-------------|
+| `Stop` | Claude finishes responding | "Claude Code — Done" |
+| `Notification` | Claude needs approval (permission prompt) | "Claude Code — Needs Input" |
+
+The script reads JSON from stdin (provided by Claude Code), extracts the working directory, and queries tmux for session/window context. If you're already looking at the session in a supported terminal (Ghostty, iTerm2, Alacritty, kitty, WezTerm, Terminal), the notification is suppressed.
+
+### Notification priority
+
+The script tries these in order:
+
+1. **`ClaudeNotifier.app`** — custom icon, requires `terminal-notifier` + `icon.png` setup
+2. **`terminal-notifier`** — Terminal icon, no setup beyond `brew install`
+3. **`osascript`** — Script Editor icon, zero dependencies
+
+<details>
+<summary><strong>Manual setup</strong></summary>
 
 If you prefer not to use `install.sh`:
 
@@ -92,26 +118,10 @@ ln -sf /path/to/claude-code-notifier/notify.sh ~/.claude/hooks/notify.sh
 
 Open the `/hooks` menu in Claude Code to review and accept the new hooks, or restart your session.
 
-## How it works
+</details>
 
-Claude Code's <a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">hooks system</a> runs shell commands on lifecycle events:
-
-| Hook | Event | Notification |
-|------|-------|-------------|
-| `Stop` | Claude finishes responding | "Claude Code — Done" |
-| `Notification` | Claude needs approval (permission prompt) | "Claude Code — Needs Input" |
-
-The script reads JSON from stdin (provided by Claude Code), extracts the working directory, and queries tmux for session/window context. If you're already looking at the session in a supported terminal (Ghostty, iTerm2, Alacritty, kitty, WezTerm, Terminal), the notification is suppressed.
-
-## Notification priority
-
-The script tries these in order:
-
-1. **`ClaudeNotifier.app`** — custom icon, requires `terminal-notifier` + `icon.png` setup
-2. **`terminal-notifier`** — Terminal icon, no setup beyond `brew install`
-3. **`osascript`** — Script Editor icon, zero dependencies
-
-## Troubleshooting
+<details>
+<summary><strong>Troubleshooting</strong></summary>
 
 **Notifications don't appear when screen recording or mirroring:**
 macOS suppresses banners during screen sharing as a privacy feature. Fix: System Settings > Notifications > "Allow notifications when mirroring or sharing the display" > Allow Notifications.
@@ -124,6 +134,8 @@ Make sure Claude Code is running inside a tmux session. The `$TMUX` and `$TMUX_P
 
 **Square brackets in subtitle cause it to disappear:**
 Known `terminal-notifier` bug. The script avoids brackets by default.
+
+</details>
 
 ## License
 
