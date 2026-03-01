@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install claude-code-notifier
+# Install ccnotifs
 # Symlinks notify.sh into ~/.claude/hooks/ and optionally sets up a custom icon.
 
 set -euo pipefail
@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOKS_DIR="$HOME/.claude/hooks"
 
-echo "Installing claude-code-notifier..."
+echo "Installing ccnotifs..."
 
 # --- Symlink notify.sh ---
 mkdir -p "$HOOKS_DIR"
@@ -16,10 +16,10 @@ echo "  Symlinked notify.sh -> $HOOKS_DIR/notify.sh"
 
 # --- Custom icon (optional) ---
 ICON_SRC="$SCRIPT_DIR/icon.png"
-APP_DIR="$HOME/.claude/ClaudeNotifier.app"
+APP_DIR="$HOME/.claude/ccnotifs.app"
 
 if [ -f "$ICON_SRC" ]; then
-    echo "  Found icon.png — building ClaudeNotifier.app..."
+    echo "  Found icon.png — building ccnotifs.app..."
 
     # Check for terminal-notifier
     TN_APP=$(find /opt/homebrew/Cellar/terminal-notifier -name "terminal-notifier.app" -maxdepth 2 2>/dev/null | head -1)
@@ -28,7 +28,7 @@ if [ -f "$ICON_SRC" ]; then
         echo "  Skipping custom icon setup."
     else
         # Build iconset
-        ICONSET=$(mktemp -d)/ClaudeNotifier.iconset
+        ICONSET=$(mktemp -d)/ccnotifs.iconset
         mkdir -p "$ICONSET"
         for size in 16 32 64 128 256 512; do
             sips -z $size $size "$ICON_SRC" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null 2>&1
@@ -48,13 +48,13 @@ if [ -f "$ICON_SRC" ]; then
         cp "$ICNS" "$APP_DIR/Contents/Resources/${ICON_NAME}.icns"
 
         # Update bundle identifier
-        /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.claude-code.notifier" "$APP_DIR/Contents/Info.plist"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.ccnotifs" "$APP_DIR/Contents/Info.plist"
 
         # Register with Launch Services and clear icon cache
         /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APP_DIR"
         killall NotificationCenter 2>/dev/null || true
 
-        echo "  ClaudeNotifier.app installed with custom icon."
+        echo "  ccnotifs.app installed with custom icon."
     fi
 else
     echo "  No icon.png found — skipping custom icon setup."

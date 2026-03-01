@@ -1,7 +1,7 @@
 <div align="center">
 
 <img src="assets/clawd-shimmer.gif" width="200" alt="Clawd">
-<h1>Claude Code Notifier</h1>
+<h1>ccnotifs</h1>
 
 Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>.
 Know when Claude finishes or needs your input.
@@ -38,14 +38,14 @@ Claude has finished and is awaiting further instructions
 brew install jq                    # required
 brew install terminal-notifier     # recommended — enables teleport and custom icon
 
-git clone https://github.com/YOUR_USERNAME/claude-code-notifier.git
-cd claude-code-notifier
+git clone https://github.com/YOUR_USERNAME/ccnotifs.git
+cd ccnotifs
 ./install.sh
 ```
 
 The install script:
 1. Symlinks `notify.sh` into `~/.claude/hooks/`
-2. If `icon.png` exists in the repo, builds a `ClaudeNotifier.app` with your icon
+2. If `icon.png` exists in the repo, builds a `ccnotifs.app` with your icon
 3. Prints the hooks config to add to your `settings.json`
 
 ### Custom icon
@@ -69,7 +69,7 @@ The script reads JSON from stdin (provided by Claude Code), extracts the working
 
 The script tries these in order:
 
-1. **`ClaudeNotifier.app`** — custom icon + teleport, requires `terminal-notifier` + `icon.png` setup
+1. **`ccnotifs.app`** — custom icon + teleport, requires `terminal-notifier` + `icon.png` setup
 2. **`terminal-notifier`** — teleport, no setup beyond `brew install`
 3. **`osascript`** — zero dependencies, but no teleport support
 
@@ -88,7 +88,7 @@ If you prefer not to use `install.sh`:
 
 ```bash
 mkdir -p ~/.claude/hooks
-ln -sf /path/to/claude-code-notifier/notify.sh ~/.claude/hooks/notify.sh
+ln -sf /path/to/ccnotifs/notify.sh ~/.claude/hooks/notify.sh
 ```
 
 **2. Add hooks to `~/.claude/settings.json`:**
@@ -135,7 +135,7 @@ Open the `/hooks` menu in Claude Code to review and accept the new hooks, or res
 macOS suppresses banners during screen sharing as a privacy feature. Fix: System Settings > Notifications > "Allow notifications when mirroring or sharing the display" > Allow Notifications.
 
 **Notifications show in Notification Center but not as banners:**
-Check System Settings > Notifications > find "ClaudeNotifier" (or "terminal-notifier") > set alert style to "Banners" or "Alerts".
+Check System Settings > Notifications > find "ccnotifs" (or "terminal-notifier") > set alert style to "Banners" or "Alerts".
 
 **tmux info not showing:**
 Make sure Claude Code is running inside a tmux session. The `$TMUX` and `$TMUX_PANE` environment variables must be set.

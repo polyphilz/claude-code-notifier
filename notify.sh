@@ -105,9 +105,9 @@ elif [ -n "$PROJECT" ]; then
 fi
 
 # --- Send notification ---
-# Use custom ClaudeNotifier.app if installed (for custom icon),
+# Use custom ccnotifs.app if installed (for custom icon),
 # otherwise fall back to terminal-notifier, then osascript.
-CUSTOM_NOTIFIER="$HOME/.claude/ClaudeNotifier.app/Contents/MacOS/terminal-notifier"
+CUSTOM_NOTIFIER="$HOME/.claude/ccnotifs.app/Contents/MacOS/terminal-notifier"
 
 if [ -x "$CUSTOM_NOTIFIER" ]; then
     ARGS=(-title "$TITLE" -message "$BODY")
