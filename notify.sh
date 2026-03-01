@@ -56,6 +56,37 @@ if [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ]; then
     fi
 fi
 
+# --- Click-to-focus: detect terminal bundle ID ---
+# __CFBundleIdentifier is set by macOS for GUI apps — it's already the bundle ID.
+# Falls back to mapping TERM_PROGRAM for non-GUI-launched terminals.
+TERM_BUNDLE_ID="${__CFBundleIdentifier:-}"
+if [ -z "$TERM_BUNDLE_ID" ]; then
+    TERM_PROG="${TERM_PROGRAM:-}"
+    if [ "$TERM_PROG" = "tmux" ] && [ -n "${TMUX:-}" ]; then
+        TERM_PROG=$(tmux show-environment TERM_PROGRAM 2>/dev/null | sed 's/^TERM_PROGRAM=//' || echo "")
+    fi
+    case "$TERM_PROG" in
+        Apple_Terminal) TERM_BUNDLE_ID="com.apple.Terminal" ;;
+        iTerm.app)     TERM_BUNDLE_ID="com.googlecode.iterm2" ;;
+        ghostty)       TERM_BUNDLE_ID="com.mitchellh.ghostty" ;;
+        Alacritty)     TERM_BUNDLE_ID="org.alacritty" ;;
+        WezTerm)       TERM_BUNDLE_ID="com.github.wez.wezterm" ;;
+        kitty)         TERM_BUNDLE_ID="net.kovidgoyal.kitty" ;;
+    esac
+fi
+
+# Build click command: activate terminal + switch to the correct tmux window/pane.
+# Everything goes into -execute because -activate and -execute conflict in terminal-notifier.
+# Full paths are required because terminal-notifier runs -execute via bare /bin/sh (no PATH).
+CLICK_CMD=""
+if [ -n "$TERM_BUNDLE_ID" ]; then
+    CLICK_CMD="open -b '${TERM_BUNDLE_ID}'"
+    TMUX_BIN=$(command -v tmux 2>/dev/null || echo "")
+    if [ -n "$TMUX_BIN" ] && [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ] && [ -n "${SESSION:-}" ] && [ -n "${WIN_INDEX:-}" ]; then
+        CLICK_CMD="${CLICK_CMD} && '${TMUX_BIN}' switch-client -t '${SESSION}' && '${TMUX_BIN}' select-window -t '${SESSION}:${WIN_INDEX}' && '${TMUX_BIN}' select-pane -t '${TMUX_PANE}'"
+    fi
+fi
+
 # --- Project name from cwd ---
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")
 PROJECT=""
@@ -81,10 +112,12 @@ CUSTOM_NOTIFIER="$HOME/.claude/ClaudeNotifier.app/Contents/MacOS/terminal-notifi
 if [ -x "$CUSTOM_NOTIFIER" ]; then
     ARGS=(-title "$TITLE" -message "$BODY")
     [ -n "$SUBTITLE" ] && ARGS+=(-subtitle "$SUBTITLE")
+    [ -n "$CLICK_CMD" ] && ARGS+=(-execute "$CLICK_CMD")
     "$CUSTOM_NOTIFIER" "${ARGS[@]}"
 elif command -v terminal-notifier &>/dev/null; then
     ARGS=(-title "$TITLE" -message "$BODY" -sound "$SOUND")
     [ -n "$SUBTITLE" ] && ARGS+=(-subtitle "$SUBTITLE")
+    [ -n "$CLICK_CMD" ] && ARGS+=(-execute "$CLICK_CMD")
     terminal-notifier "${ARGS[@]}"
 else
     # Fallback: osascript (shows Script Editor icon)

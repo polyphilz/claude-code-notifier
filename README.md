@@ -19,6 +19,7 @@ Know when Claude finishes or needs your input.
 ## Features
 
 - **Two notification types** — "Done" when Claude finishes, "Needs Input" when Claude needs approval
+- **Teleport** — Click a notification to teleport back to the right terminal, tmux session, window, and pane — no matter where you are on your computer (requires `terminal-notifier`)
 - **tmux context** — Shows session name, window number, and window name
 - **Project name** — Displays the current project directory
 - **Suppression** — Skips notifications when you're already viewing the Claude Code session
@@ -35,7 +36,7 @@ Claude has finished and is awaiting further instructions
 
 ```bash
 brew install jq                    # required
-brew install terminal-notifier     # optional, for custom icon
+brew install terminal-notifier     # recommended — enables teleport and custom icon
 
 git clone https://github.com/YOUR_USERNAME/claude-code-notifier.git
 cd claude-code-notifier
@@ -68,9 +69,15 @@ The script reads JSON from stdin (provided by Claude Code), extracts the working
 
 The script tries these in order:
 
-1. **`ClaudeNotifier.app`** — custom icon, requires `terminal-notifier` + `icon.png` setup
-2. **`terminal-notifier`** — Terminal icon, no setup beyond `brew install`
-3. **`osascript`** — Script Editor icon, zero dependencies
+1. **`ClaudeNotifier.app`** — custom icon + teleport, requires `terminal-notifier` + `icon.png` setup
+2. **`terminal-notifier`** — teleport, no setup beyond `brew install`
+3. **`osascript`** — zero dependencies, but no teleport support
+
+### Teleport
+
+When `terminal-notifier` is installed, clicking a notification brings you back to where Claude Code is running. It activates your terminal, switches to the correct tmux session, selects the right window, and focuses the exact pane.
+
+Supported terminals: Terminal.app, iTerm2, Ghostty, Alacritty, kitty, WezTerm.
 
 <details>
 <summary><strong>Manual setup</strong></summary>
