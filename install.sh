@@ -1,34 +1,34 @@
 #!/bin/bash
 # Install ccnotifs
-# Symlinks notify.sh into ~/.claude/hooks/ and optionally sets up a custom icon.
+# Downloads notify.sh and icon.png from GitHub, sets up hooks and optional custom icon.
+#
+# Run directly:  curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/install.sh | bash
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_RAW="https://raw.githubusercontent.com/polyphilz/ccnotifs/main"
 HOOKS_DIR="$HOME/.claude/hooks"
 
 echo "Installing ccnotifs..."
 
-# --- Symlink notify.sh ---
+# --- Download notify.sh ---
 mkdir -p "$HOOKS_DIR"
-ln -sf "$SCRIPT_DIR/notify.sh" "$HOOKS_DIR/notify.sh"
-echo "  Symlinked notify.sh -> $HOOKS_DIR/notify.sh"
+curl -fsSL "$REPO_RAW/notify.sh" -o "$HOOKS_DIR/notify.sh"
+chmod +x "$HOOKS_DIR/notify.sh"
+echo "  Downloaded notify.sh -> $HOOKS_DIR/notify.sh"
 
-# --- Custom icon (optional) ---
-ICON_SRC="$SCRIPT_DIR/icon.png"
+# --- Custom icon (optional — requires terminal-notifier) ---
 APP_DIR="$HOME/.claude/ccnotifs.app"
+TN_APP=$(find /opt/homebrew/Cellar/terminal-notifier -name "terminal-notifier.app" -maxdepth 2 2>/dev/null | head -1)
 
-if [ -f "$ICON_SRC" ]; then
-    echo "  Found icon.png — building ccnotifs.app..."
+if [ -n "$TN_APP" ]; then
+    echo "  Found terminal-notifier — downloading icon and building ccnotifs.app..."
 
-    # Check for terminal-notifier
-    TN_APP=$(find /opt/homebrew/Cellar/terminal-notifier -name "terminal-notifier.app" -maxdepth 2 2>/dev/null | head -1)
-    if [ -z "$TN_APP" ]; then
-        echo "  terminal-notifier not found. Install it with: brew install terminal-notifier"
-        echo "  Skipping custom icon setup."
-    else
+    TMPDIR_ICON=$(mktemp -d)
+    ICON_SRC="$TMPDIR_ICON/icon.png"
+    if curl -fsSL "$REPO_RAW/icon.png" -o "$ICON_SRC" 2>/dev/null; then
         # Build iconset
-        ICONSET=$(mktemp -d)/ccnotifs.iconset
+        ICONSET="$TMPDIR_ICON/ccnotifs.iconset"
         mkdir -p "$ICONSET"
         for size in 16 32 64 128 256 512; do
             sips -z $size $size "$ICON_SRC" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null 2>&1
@@ -36,7 +36,7 @@ if [ -f "$ICON_SRC" ]; then
             sips -z $double $double "$ICON_SRC" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null 2>&1
         done
         cp "$ICON_SRC" "$ICONSET/icon_512x512@2x.png"
-        ICNS=$(mktemp).icns
+        ICNS="$TMPDIR_ICON/ccnotifs.icns"
         iconutil -c icns "$ICONSET" -o "$ICNS"
 
         # Copy terminal-notifier.app and replace icon
@@ -55,10 +55,14 @@ if [ -f "$ICON_SRC" ]; then
         killall NotificationCenter 2>/dev/null || true
 
         echo "  ccnotifs.app installed with custom icon."
+        rm -rf "$TMPDIR_ICON"
+    else
+        echo "  Could not download icon.png — skipping custom icon setup."
+        rm -rf "$TMPDIR_ICON"
     fi
 else
-    echo "  No icon.png found — skipping custom icon setup."
-    echo "  To use a custom icon, place a 1024x1024 PNG as icon.png in this directory and re-run."
+    echo "  terminal-notifier not found — skipping custom icon setup."
+    echo "  For custom notification icons, install it with: brew install terminal-notifier"
 fi
 
 # --- Print hooks config ---

@@ -38,21 +38,13 @@ Claude has finished and is awaiting further instructions
 brew install jq                    # required
 brew install terminal-notifier     # recommended — enables teleport and custom icon
 
-git clone https://github.com/YOUR_USERNAME/ccnotifs.git
-cd ccnotifs
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/install.sh | bash
 ```
 
 The install script:
-1. Symlinks `notify.sh` into `~/.claude/hooks/`
-2. If `icon.png` exists in the repo, builds a `ccnotifs.app` with your icon
+1. Downloads `notify.sh` into `~/.claude/hooks/`
+2. If `terminal-notifier` is installed, downloads `icon.png` and builds a `ccnotifs.app` with a custom icon
 3. Prints the hooks config to add to your `settings.json`
-
-### Custom icon
-
-Place a **1024x1024 PNG** named `icon.png` in the repo root before running `install.sh`. This gets baked into a minimal `.app` bundle that macOS uses as the notification icon.
-
-Without `icon.png`, notifications fall back to `osascript` (Script Editor icon) or `terminal-notifier` (Terminal icon).
 
 ## How it works
 
@@ -84,11 +76,12 @@ Supported terminals: Terminal.app, iTerm2, Ghostty, Alacritty, kitty, WezTerm.
 
 If you prefer not to use `install.sh`:
 
-**1. Symlink the script:**
+**1. Download the script:**
 
 ```bash
 mkdir -p ~/.claude/hooks
-ln -sf /path/to/ccnotifs/notify.sh ~/.claude/hooks/notify.sh
+curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/notify.sh -o ~/.claude/hooks/notify.sh
+chmod +x ~/.claude/hooks/notify.sh
 ```
 
 **2. Add hooks to `~/.claude/settings.json`:**
